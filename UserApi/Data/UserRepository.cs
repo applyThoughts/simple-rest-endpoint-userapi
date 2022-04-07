@@ -16,7 +16,7 @@ namespace UserApi.Data
             db.SaveChanges();
             return user;
         }
-        public List<User> GetUsers() => db.User.ToList();
+        public IEnumerable<User> GetUsers() => db.User.ToList();
 
         public User PutUser(User user)
         {

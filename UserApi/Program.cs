@@ -37,7 +37,40 @@ app.MapGet("/users", ([FromServices] IUserRepository db) =>
         return db.GetUsers();
     }
 );
+app.MapGet("/search/", ([FromServices] IUserRepository db,string? email,string? phone,string? orderBy) =>
+    {
+        var users = db.GetUsers();
+        if (email!=null || phone!=null)
+        {
+            users = users.Where(u =>
+                ((email != null && u.Email.Contains(email)) || (phone != null && u.Phone.Contains(phone))));
 
+        }
+
+
+        if (!string.IsNullOrEmpty(orderBy))
+        {
+            string direction = orderBy.ToLower().Contains("asc") ? "asc" : "desc";
+            orderBy = orderBy.ToLower().Replace("asc","").Replace("desc","").Trim();
+            switch (orderBy.ToLower())
+            {
+                case "fistname":
+                    users = direction == "asc" ? users.OrderBy(u => u.FirstName) : users.OrderByDescending(u => u.FirstName);
+                    break;
+                case "lastname":
+                    users = direction == "asc" ? users.OrderBy(u => u.LastName) : users.OrderByDescending(u => u.LastName);
+                    break;
+                case "age":
+                    users = direction == "asc" ? users.OrderBy(u => u.Age) : users.OrderByDescending(u => u.Age);
+                    break;
+                default:
+                    break;
+            }
+        }
+
+        return users;
+    }
+);
 app.MapPut("/user/{id}", ([FromServices] IUserRepository db, User user) =>
 {
     return db.PutUser(user);
